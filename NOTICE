@@ -1,0 +1,4 @@
+serve_blink.py and serve_jeffan.py are engine/serve.py of the REAX engine (https://github.com/reaxlabs/reax-engine, commits
+4230e50e8b5247f113f7c4b55c6d1c4efa7c2e94 and 3582925c2f47b1f38e9e4dd73095ee8cff49900c), REAX Engine License 1.1, with one block
+added by tools/xpatch_serve.py (the X_NOBARRIER dispatch, MIT). Everything else in the image comes unchanged from the pinned
+REAX reference images named in the Dockerfile; their LICENSE/NOTICE files are kept under /licenses in the image.
