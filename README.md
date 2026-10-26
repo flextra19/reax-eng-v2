@@ -3,6 +3,19 @@
 An engine for the [REAX engine track v2](https://reax.co/competitions/faq/#faq-engine-v2) that serves **Blink text** and
 **Jeffan-31b** (`ai.reax.engine.models=blink,jeffan`).
 
+| | |
+|---|---|
+| UID / hotkey | 140 / `5GWdcbe5w4GNPK5eFp8DkoVbBSAGBtZ9GeFvwvR9gkFAbM3z` |
+| Image | `ghcr.io/flextra19/reax-eng-v2@sha256:93af0fd1eb51d25e8954514652da151d97bca214a27c7355dd4d7d05e49588d3` |
+| Commitment | `reax-eng/1:dm-all:ghcr.io/flextra19/reax-eng-v2@sha256:93af0fd1…` (block 9369405) |
+| Built from | commit `f9c62c5728be9abc622969fa59ce99b63b3e7420` of this repository (`ai.reax.engine.commit` label) |
+| Parents | none (no files from other entries; the bases are the REAX reference images) |
+| Natives | none added (no `.so` / `.cubin` of ours; only Python and shell files) |
+| Weight-like data | none added (the copied Jeffan tree's `engine/scales` calibration JSON is removed in the build) |
+
+The files in the image are byte-identical to the files at commit `f9c62c57`: `serve_blink.py` is `/opt/reax/engine/serve.py`,
+`serve_jeffan.py` is `/opt/reax-j/engine/serve.py`, and `dispatch.sh` is `/opt/reax/dispatch.sh`.
+
 ## What it changes
 
 Both models run on the pinned REAX reference engines (vLLM 0.30.0 behind the REAX server), with the same vLLM flags, presets,
