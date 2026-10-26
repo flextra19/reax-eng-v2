@@ -17,6 +17,7 @@ COPY --from=jeffan /licenses/LICENSE /licenses/NOTICE /licenses/reax-engine-3582
 COPY serve_blink.py /opt/reax/engine/serve.py
 COPY serve_jeffan.py /opt/reax-j/engine/serve.py
 COPY dispatch.sh /opt/reax/dispatch.sh
+COPY IMAGE-README.md /README.md
 ENV X_NOBARRIER=1
 ARG GIT_SHA
 LABEL ai.reax.engine.hotkey="5GWdcbe5w4GNPK5eFp8DkoVbBSAGBtZ9GeFvwvR9gkFAbM3z" \
