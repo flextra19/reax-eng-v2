@@ -6,16 +6,16 @@ An engine for the [REAX engine track v2](https://reax.co/competitions/faq/#faq-e
 | | |
 |---|---|
 | UID / hotkey | 140 / `5GWdcbe5w4GNPK5eFp8DkoVbBSAGBtZ9GeFvwvR9gkFAbM3z` |
-| Image | `ghcr.io/flextra19/reax-eng-v2@sha256:d4b5f6342dbd646aaf907fc90bc8169383ae73e52ab9022cce86debd460913bf` |
-| Commitment | `reax-eng/1:dm-all:ghcr.io/flextra19/reax-eng-v2@sha256:d4b5f634…` |
-| Built from | commit `267cbeb98581537fe7386ee3d1f97a3123b8a69d` of this repository (`ai.reax.engine.commit` label) |
+| Image | `ghcr.io/flextra19/reax-eng-v2@sha256:39440b1e20123c0c29cbd6fec8f011fac880a815f3433bf624141fe188c17542` (28 Oct; before: `d4b5f634…`) |
+| Commitment | `reax-eng/1:dm-all:ghcr.io/flextra19/reax-eng-v2@sha256:39440b1e…` (block 9379215) |
+| Built from | commit `a240b615ee073e39e561ce579f5c7b6d558b30ae` of this repository (`ai.reax.engine.commit` label) |
 | Parents | none (no files from other entries; the bases are the REAX reference images) |
 | Natives | none added (no `.so` / `.cubin` of ours; only Python and shell files) |
 | Weight-like data | none added (the copied Jeffan tree's `engine/scales` calibration JSON is removed in the build) |
 
-The files in the image are byte-identical to the files at commit `267cbeb9`: `serve_blink.py` is `/opt/reax/engine/serve.py`,
-`serve_jeffan.py` is `/opt/reax-j/engine/serve.py`, `dispatch.sh` is `/opt/reax/dispatch.sh`, and `IMAGE-README.md` is `/README.md` (added as the last layer through the registry API by
-`tools/append_layer.py`; all earlier layers are those of the docker build at commit `f9c62c57`).
+The files in the image are byte-identical to the files at commit `a240b615`: `serve_blink.py` is `/opt/reax/engine/serve.py`,
+`serve_jeffan.py` is `/opt/reax-j/engine/serve.py`, `dispatch.sh` is `/opt/reax/dispatch.sh`, and `IMAGE-README.md` is `/README.md` (`dispatch.sh` and `/README.md` were added as the last layers through the registry API
+by `tools/append_layer.py`; all earlier layers are those of the docker build at commit `f9c62c57`).
 
 ## What it changes
 

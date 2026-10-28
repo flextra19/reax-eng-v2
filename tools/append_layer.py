@@ -1,7 +1,7 @@
-"""append_layer.py REPO SRC_REF NEW_TAG FILE:PATH_IN_IMAGE LABEL=VALUE... : add one small file layer to an image that is
+"""append_layer.py REPO SRC_REF NEW_TAG FILE:PATH_IN_IMAGE LABEL=VALUE ENV:KEY=VALUE... : add one small file layer to an image that is
 already in GHCR, entirely through the registry API (no pull, no docker): every existing layer blob stays byte-identical,
 the config gets the new diff_id, a history entry and the given label overrides, and the new manifest is pushed as NEW_TAG.
-Prints the new manifest digest. Token: /root/.config/registry/ghcr_token (never printed). Only for single-platform
+ENV:KEY=VALUE sets (or replaces) one environment variable of the image config. Prints the new manifest digest. Token: /root/.config/registry/ghcr_token (never printed). Only for single-platform
 docker v2 / OCI image manifests, as pushed by `docker push`."""
 import base64
 import gzip
@@ -15,8 +15,9 @@ import urllib.request
 REG = "https://ghcr.io"
 USER = "flextra19"
 repo, src_ref, new_tag = sys.argv[1], sys.argv[2], sys.argv[3]
-files = [a for a in sys.argv[4:] if ":" in a and "=" not in a.split(":")[0]]
-labels = dict(a.split("=", 1) for a in sys.argv[4:] if a not in files)
+envs = [a[4:] for a in sys.argv[4:] if a.startswith("ENV:")]
+files = [a for a in sys.argv[4:] if not a.startswith("ENV:") and ":" in a and "=" not in a.split(":")[0]]
+labels = dict(a.split("=", 1) for a in sys.argv[4:] if a not in files and not a.startswith("ENV:"))
 tok = open("/root/.config/registry/ghcr_token").read().strip()
 
 
@@ -52,7 +53,8 @@ with tarfile.open(fileobj=buf, mode="w", format=tarfile.PAX_FORMAT) as tf:
         src, dst = spec.split(":", 1)
         data = open(src, "rb").read()
         ti = tarfile.TarInfo(dst.lstrip("/"))
-        ti.size, ti.mode, ti.mtime, ti.uid, ti.gid, ti.uname, ti.gname = len(data), 0o644, 0, 0, 0, "root", "root"
+        mode = 0o755 if dst.endswith(".sh") else 0o644  # shell scripts stay executable (entrypoints)
+        ti.size, ti.mode, ti.mtime, ti.uid, ti.gid, ti.uname, ti.gname = len(data), mode, 0, 0, 0, "root", "root"
         tf.addfile(ti, io.BytesIO(data))
 tar = buf.getvalue()
 gz = io.BytesIO()
@@ -76,6 +78,13 @@ config.setdefault("history", []).append({"created": "2026-10-27T00:00:00Z",
                                          "created_by": "COPY " + " ".join(f.split(':', 1)[0] + " " + f.split(':', 1)[1] for f in files),
                                          "comment": "appended via registry API (tools/append_layer.py)"})
 config["config"].setdefault("Labels", {}).update(labels)
+for kv in envs:
+    key = kv.split("=", 1)[0]
+    env = [e for e in config["config"].get("Env") or [] if e.split("=", 1)[0] != key]
+    config["config"]["Env"] = env + [kv]
+if envs:
+    config["history"].append({"created": "2026-10-28T00:00:00Z", "created_by": "ENV " + " ".join(envs),
+                              "comment": "set via registry API (tools/append_layer.py)", "empty_layer": True})
 cfg = json.dumps(config, separators=(",", ":")).encode()
 cfg_digest = "sha256:" + hashlib.sha256(cfg).hexdigest()
 upload(cfg, cfg_digest)
