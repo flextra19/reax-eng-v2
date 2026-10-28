@@ -27,6 +27,12 @@ the same `backend.pool` (the same `_one`, the same HTTP request to the same vLLM
 Concurrency towards vLLM is still capped by the pool size (`--max-num-seqs`). vLLM keeps batch-invariant kernels
 (`VLLM_BATCH_INVARIANT=1`, as in the reference), so the answers do not depend on which decisions are co-scheduled.
 
+**Blink text only (`dispatch.sh`, 28 Oct):** vLLM also captures CUDA graphs at the step sizes this traffic produces
+(`--compilation-config {"cudagraph_capture_sizes":[1 .. 4096],"max_cudagraph_capture_size":4096}` through the reference
+entrypoint's `REAX_VLLM_EXTRA`). The reference uses vLLM's default capture list, which stops at 64 tokens, so its
+~1,400-2,100-token prefill steps run without CUDA graphs and pay the per-kernel launch cost (high under gVisor). The graphs
+replay the same compiled, batch-invariant kernels. `X_BLINK_CG=0` restores the reference's capture list. Jeffan is unchanged.
+
 `serve_blink.py` and `serve_jeffan.py` are the reference `serve.py` of each tree after `tools/xpatch_serve.py`.
 `X_NOBARRIER=ctl` reads the arm (`nobar` or reference) from `<socket dir>/ctl`; that mode is used only for in-container A/B.
 
@@ -38,6 +44,13 @@ In-container A/B in one running engine: fresh validator-style decisions, concurr
 |---|---|---|---|---|
 | Blink text | 66.3 dec/s | 97.5 dec/s | +47.6 % (+41.3 .. +53.9) | 512/512 byte-identical |
 | Jeffan-31b | 20.8 dec/s | 25.6 dec/s | +22.9 % (+20.5 .. +25.3) | 512/512 byte-identical |
+
+Validator session loop (`reax-engine-eval --track dm-all`, rc11.post8.1, runsc, release references and gates), 28 Oct:
+
+| Blink text | candidate | reference | slot score | mean distance / top choice |
+|---|---|---|---|---|
+| X_NOBARRIER only | 107.9 dec/s | 65.1 dec/s | 1.658 | 0.002 / 100 % |
+| X_NOBARRIER + CUDA graphs to 4096 tokens | 145.2 dec/s | 65.9 dec/s | 2.166 | 0.000 / 100 % |
 
 ## Build
 

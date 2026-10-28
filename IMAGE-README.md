@@ -16,5 +16,8 @@ Files of ours in this image (byte-identical to the repository):
   /README.md                   = IMAGE-README.md  (this file)
 /opt/reax-j is /opt/reax of the Jeffan reference image without engine/scales. Licences: /licenses.
 
-Change: serve.py hands every queued decision straight to the vLLM client pool (same _one, same request, same vLLM
+Change 1: serve.py hands every queued decision straight to the vLLM client pool (same _one, same request, same vLLM
 flags, presets and readout as the reference) instead of waiting for the whole step (pool.map) to finish.
+Change 2 (Blink text only, dispatch.sh): vLLM captures CUDA graphs at the step sizes of this traffic (1 .. 4096 tokens;
+the reference's default capture list stops at 64 tokens), via REAX_VLLM_EXTRA --compilation-config. Same compiled,
+batch-invariant kernels; X_BLINK_CG=0 restores the reference's list. dispatch.sh changed in a later appended layer.
